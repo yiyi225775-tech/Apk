@@ -17,7 +17,7 @@
 
         #main-admin { display: none; width: 100%; max-width: 400px; }
 
-        /* Slip Capture Area */
+        /* Slip Area */
         #capture-area { width: 340px; height: 260px; position: relative; border-radius: 20px; overflow: hidden; border: 3px solid var(--primary); background: #fff; margin: 0 auto 15px; }
         .slip-bg { position: absolute; width: 100%; height: 100%; background: url('https://raw.githubusercontent.com/yiyi225775-tech/Apk/main/cute-red-panda-tree-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-5975.jpg') center/cover; opacity: 0.07; }
         .slip-content { position: relative; z-index: 5; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
@@ -31,32 +31,28 @@
         .search-input { border: none; outline: none; width: 100%; font-family: 'Pyidaungsu'; font-size: 14px; }
         .btn-main { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; }
 
-        /* User Card with Bottom Progress Bar */
+        /* User Card */
         .user-card { 
-            background: #fff; 
-            border-radius: 15px; 
-            padding: 12px; 
-            margin-bottom: 12px; 
-            display: flex; 
-            flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            overflow: hidden;
-            position: relative;
-            border-left: 6px solid #ccc;
+            background: #fff; border-radius: 15px; padding: 12px; margin-bottom: 15px; 
+            display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: relative; border-left: 6px solid #ccc;
         }
         .user-card.banned { opacity: 0.5; filter: grayscale(1); border-left-color: #555 !important; }
         
+        /* Card Label (User Card 1, 2, 3) */
+        .card-label { font-size: 10px; font-weight: bold; color: #fff; background: #333; padding: 2px 8px; border-radius: 5px; margin-bottom: 8px; align-self: flex-start; }
+
         .card-main-content { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 8px; }
         .c-info { flex: 1; }
-        .c-id { font-size: 11px; color: var(--primary); font-weight: bold; display: block; border-bottom: 1px dashed #eee; margin-bottom: 5px; padding-bottom: 2px; }
+        .c-id { font-size: 11px; color: var(--primary); font-weight: bold; display: block; margin-bottom: 4px; border-bottom: 1px dashed #f0f0f0; }
         .c-name { font-size: 14px; font-weight: bold; color: #1a1a1a; display: block; }
-        .c-date { font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+        .c-date { font-size: 11px; color: #666; margin-top: 2px; display: block; }
         
         .c-actions { display: flex; gap: 6px; }
         .btn-s { width: 34px; height: 34px; border-radius: 9px; border: none; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
 
-        /* Progress Bar Styles */
-        .expiry-bar-container { width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        /* Progress Bar */
+        .expiry-bar-container { width: 100%; height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden; margin-top: 8px; }
         .expiry-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
     </style>
 </head>
@@ -136,17 +132,13 @@
             masterData = [];
             const today = new Date();
             today.setHours(0,0,0,0);
-
             for (const d of snap.docs) {
                 const data = d.data();
                 if (data.expiryDate) {
                     const expDate = new Date(data.expiryDate);
                     expDate.setHours(0,0,0,0);
                     const diffDays = Math.floor((today - expDate) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 5) {
-                        await deleteDoc(doc(db, "users", d.id));
-                        continue;
-                    }
+                    if (diffDays >= 5) { await deleteDoc(doc(db, "users", d.id)); continue; }
                 }
                 masterData.push({ id: d.id, ...data });
             }
@@ -156,10 +148,7 @@
 
     window.searchUsers = () => {
         const val = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = masterData.filter(u => 
-            u.id.toLowerCase().includes(val) || 
-            (u.username && u.username.toLowerCase().includes(val))
-        );
+        const filtered = masterData.filter(u => u.id.toLowerCase().includes(val) || (u.username && u.username.toLowerCase().includes(val)));
         render(filtered);
     };
 
@@ -168,21 +157,20 @@
         document.getElementById("countNum").innerText = list.length;
         container.innerHTML = "";
         
-        list.forEach(u => {
+        list.forEach((u, index) => {
             const days = calculateDays(u.expiryDate);
             const isBanned = u.status === "banned";
-            
-            // Percentage for bar (assuming 30 days is 100%)
             const percent = Math.min(100, (days / 30) * 100);
-            let color = "#ff4757"; // Red
-            if (days >= 20) color = "#2ed573"; // Green
-            else if (days >= 4) color = "#ffa502"; // Yellow
+            let color = "#ff4757"; 
+            if (days >= 20) color = "#2ed573"; 
+            else if (days >= 4) color = "#ffa502";
 
             const div = document.createElement('div');
             div.className = `user-card ${isBanned ? 'banned' : ''}`;
             div.style.borderLeftColor = isBanned ? '#555' : color;
             
             div.innerHTML = `
+                <div class="card-label">USER CARD ${index + 1}</div>
                 <div class="card-main-content">
                     <div class="c-info">
                         <span class="c-id">ID: ${u.id}</span>
@@ -249,4 +237,3 @@
 </script>
 </body>
 </html>
-

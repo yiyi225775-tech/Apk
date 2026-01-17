@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSO VIP Admin - White Mode</title>
+    <title>KSO VIP Admin - Official</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap');
         
-        /* တစ်ကိုယ်လုံး နောက်ခံကို အဖြူရောင် ပြောင်းထားသည် */
         body { font-family: 'Pyidaungsu', sans-serif; background: #ffffff; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
         
-        /* ၁။ စလစ်ဒီဇိုင်း - နောက်ခံ အဖြူရောင် */
+        /* စလစ်ဒီဇိုင်း (Size: 380x320) */
         #capture-area {
             width: 380px; height: 320px; position: relative;
             border-radius: 20px; overflow: hidden; border: 2px solid #ff3131;
@@ -19,12 +18,13 @@
             margin-bottom: 30px; background: #ffffff;
         }
 
-        /* နောက်ခံပုံ ပါဝင်ဆဲဖြစ်သော်လည်း အဖြူရောင်နှင့် လိုက်ဖက်အောင် opacity ချိန်ထားသည် */
+        /* ပုံလင့်ခ်ကို Raw Link အဖြစ် ပြောင်းလဲထည့်သွင်းထားသည် */
         .slip-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://img.freepik.com/free-vector/cute-red-panda-tree-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-5975.jpg');
+            background-image: url('https://raw.githubusercontent.com/yiyi225775-tech/Apk/main/cute-red-panda-tree-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-5975.jpg');
             background-size: cover; background-position: center;
-            opacity: 0.2; z-index: 1;
+            opacity: 0.3; /* ပုံအကြည်အနောက်ကို ဤနေရာတွင် ချိန်ပါ */
+            z-index: 1;
         }
 
         .slip-content {
@@ -50,13 +50,13 @@
             color: #ff3131;
         }
 
-        /* ၂။ Admin UI Panels - အဖြူရောင် Theme */
+        /* UI Panels */
         .admin-panel { background: #f9f9f9; width: 100%; max-width: 420px; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #ddd; box-sizing: border-box; }
         input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #000; font-size: 16px; box-sizing: border-box; outline: none; }
         input:focus { border-color: #ff3131; }
-        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .save-btn:active { transform: scale(0.98); }
 
-        /* ၃။ User List Table */
         .list-section { width: 100%; max-width: 850px; background: #fff; padding: 20px; border-radius: 15px; border: 1px solid #eee; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; color: #ff3131; padding: 10px; border-bottom: 2px solid #f0f0f0; }
@@ -84,8 +84,8 @@
     </div>
 
     <div class="admin-panel">
-        <input type="text" id="docId" placeholder="Document ID">
-        <input type="text" id="username" placeholder="အသုံးပြုသူအမည်">
+        <input type="text" id="docId" placeholder="ID ရိုက်ထည့်ပါ">
+        <input type="text" id="username" placeholder="အမည်ရိုက်ထည့်ပါ">
         <input type="date" id="expiry">
         <button class="save-btn" onclick="downloadSlip()">စလစ်ပုံကို သိမ်းမည် 📥</button>
     </div>
@@ -178,10 +178,11 @@
 <script>
     function downloadSlip() {
         const area = document.getElementById('capture-area');
+        // GitHub ပုံများကို html2canvas ဖြင့် သိမ်းနိုင်ရန် အထူး configuration များ ထည့်ထားသည်
         html2canvas(area, {
             scale: 3,
             useCORS: true,
-            allowTaint: true,
+            allowTaint: false,
             backgroundColor: "#ffffff"
         }).then(canvas => {
             const link = document.createElement('a');

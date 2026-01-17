@@ -3,93 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSO VIP Admin - Official</title>
+    <title>KSO VIP - Premium Admin</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap');
+        :root { --primary: #ff3131; --bg: #f4f7f9; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { text-align: center; width: 280px; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .u-input { width: 100%; padding: 10px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 12px; outline: none; box-sizing: border-box; font-family: 'Pyidaungsu'; }
+
+        #main-admin { display: none; width: 100%; max-width: 400px; }
+
+        /* Slip Capture Area */
+        #capture-area { width: 340px; height: 260px; position: relative; border-radius: 20px; overflow: hidden; border: 3px solid var(--primary); background: #fff; margin: 0 auto 15px; }
+        .slip-bg { position: absolute; width: 100%; height: 100%; background: url('https://raw.githubusercontent.com/yiyi225775-tech/Apk/main/cute-red-panda-tree-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-5975.jpg') center/cover; opacity: 0.07; }
+        .slip-content { position: relative; z-index: 5; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .slip-title { font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 12px; }
+        .slip-row { width: 85%; display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding: 8px 0; font-size: 14px; align-items: center; }
+        .slip-row i { color: var(--primary); margin-right: 8px; font-size: 14px; }
+        .thanks-msg { margin-top: 15px; font-weight: bold; color: var(--primary); font-size: 16px; }
+
+        .admin-panel, .search-panel { background: #fff; padding: 15px; border-radius: 18px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; box-sizing: border-box; }
+        .search-panel { display: flex; align-items: center; gap: 10px; border: 1.5px solid #eee; }
+        .search-input { border: none; outline: none; width: 100%; font-family: 'Pyidaungsu'; font-size: 14px; }
+        .btn-main { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; }
+
+        /* User Card with Bottom Progress Bar */
+        .user-card { 
+            background: #fff; 
+            border-radius: 15px; 
+            padding: 12px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            position: relative;
+            border-left: 6px solid #ccc;
+        }
+        .user-card.banned { opacity: 0.5; filter: grayscale(1); border-left-color: #555 !important; }
         
-        body { font-family: 'Pyidaungsu', sans-serif; background: #ffffff; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-
-        /* ၁။ Login Section ဒီဇိုင်း */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ffffff; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 1000;
-        }
-        .login-box {
-            background: #f9f9f9; padding: 30px; border-radius: 15px;
-            border: 1px solid #ddd; text-align: center; width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .login-box h2 { color: #ff3131; margin-bottom: 20px; }
-        .login-input {
-            width: 100%; padding: 12px; margin-bottom: 15px;
-            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;
-        }
-
-        /* ၂။ Admin Dashboard (Hidden until login) */
-        #main-admin { display: none; width: 100%; max-width: 850px; flex-direction: column; align-items: center; }
+        .card-main-content { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 8px; }
+        .c-info { flex: 1; }
+        .c-id { font-size: 11px; color: var(--primary); font-weight: bold; display: block; border-bottom: 1px dashed #eee; margin-bottom: 5px; padding-bottom: 2px; }
+        .c-name { font-size: 14px; font-weight: bold; color: #1a1a1a; display: block; }
+        .c-date { font-size: 11px; color: #666; display: flex; align-items: center; gap: 5px; margin-top: 2px; }
         
-        /* စလစ်ဒီဇိုင်း (Size: 380x320) */
-        #capture-area {
-            width: 380px; height: 320px; position: relative;
-            border-radius: 20px; overflow: hidden; border: 2px solid #ff3131;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-bottom: 30px; background: #ffffff;
-        }
+        .c-actions { display: flex; gap: 6px; }
+        .btn-s { width: 34px; height: 34px; border-radius: 9px; border: none; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
 
-        .slip-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://raw.githubusercontent.com/yiyi225775-tech/Apk/main/cute-red-panda-tree-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-5975.jpg');
-            background-size: cover; background-position: center;
-            opacity: 0.3; z-index: 1;
-        }
-
-        .slip-content {
-            position: relative; z-index: 5; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px; box-sizing: border-box;
-        }
-
-        .slip-title {
-            font-size: 26px; font-weight: bold; margin-bottom: 15px;
-            color: #ff3131; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .info-box { width: 100%; }
-        .slip-row {
-            font-size: 18px; margin: 12px 0; font-weight: bold; color: #000;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            display: flex; justify-content: space-between; padding-bottom: 5px;
-        }
-
-        .thank-you { margin-top: 20px; font-size: 22px; font-weight: bold; color: #ff3131; }
-
-        /* UI Panels */
-        .admin-panel { background: #f9f9f9; width: 100%; max-width: 420px; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #ddd; box-sizing: border-box; }
-        .ui-input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #000; font-size: 16px; box-sizing: border-box; outline: none; }
-        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-        
-        .list-section { width: 100%; background: #fff; padding: 20px; border-radius: 15px; border: 1px solid #eee; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #ff3131; padding: 10px; border-bottom: 2px solid #f0f0f0; }
-        td { padding: 12px; border-bottom: 1px solid #f9f9f9; color: #333; }
-        
-        .btn-action { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 12px; margin: 2px; color: white; }
-        .btn-ban { background: #f39c12; }
-        .btn-unban { background: #27ae60; }
-        .btn-del { background: #c0392b; }
+        /* Progress Bar Styles */
+        .expiry-bar-container { width: 100%; height: 6px; background: #eee; border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        .expiry-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2>Admin Login</h2>
-            <input type="text" id="adminUser" class="login-input" placeholder="Admin Name">
-            <input type="password" id="adminPass" class="login-input" placeholder="Password">
-            <button class="save-btn" onclick="checkLogin()">Login 🔓</button>
-            <p id="loginError" style="color: #e74c3c; font-size: 13px; margin-top: 15px; font-weight: bold;"></p>
+            <i class="fas fa-user-shield" style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"></i>
+            <h3>KSO ADMIN</h3>
+            <input type="text" id="adminUser" class="u-input" placeholder="အမည်">
+            <input type="password" id="adminPass" class="u-input" placeholder="စကားဝှက်">
+            <button class="btn-main" onclick="checkLogin()">Login 🔓</button>
+            <p id="err" style="color:red; font-size:12px; margin-top:10px;"></p>
         </div>
     </div>
 
@@ -97,35 +77,32 @@
         <div id="capture-area">
             <div class="slip-bg"></div>
             <div class="slip-content">
-                <div class="slip-title">KSO VIP ဝန်ဆောင်မှု</div>
-                <div class="info-box">
-                    <div class="slip-row"><span>ID:</span> <span id="p-id">.......</span></div>
-                    <div class="slip-row"><span>NAME:</span> <span id="p-name">.......</span></div>
-                    <div class="slip-row"><span>EXPIRY:</span> <span id="p-exp">.......</span></div>
-                </div>
-                <div class="thank-you">ကျေးဇူးတင်ပါသည်</div>
+                <div class="slip-title"><i class="fas fa-crown"></i> KSO VIP ဝန်ဆောင်မှု</div>
+                <div class="slip-row"><span><i class="fas fa-id-badge"></i> TOKEN ID:</span> <span id="p-id" style="font-weight:bold;">...</span></div>
+                <div class="slip-row"><span><i class="fas fa-user"></i> နာမည်:</span> <span id="p-name" style="font-weight:bold;">...</span></div>
+                <div class="slip-row"><span><i class="fas fa-calendar-alt"></i> ကုန်ဆုံးရက်:</span> <span id="p-exp" style="font-weight:bold;">...</span></div>
+                <div class="thanks-msg">ကျေးဇူးတင်ပါသည် <i class="fas fa-heart"></i></div>
             </div>
         </div>
 
         <div class="admin-panel">
-            <input type="text" id="docId" class="ui-input" placeholder="ID ရိုက်ထည့်ပါ">
-            <input type="text" id="username" class="ui-input" placeholder="အမည်ရိုက်ထည့်ပါ">
-            <input type="date" id="expiry" class="ui-input">
-            <button class="save-btn" onclick="downloadSlip()">စလစ်ပုံကို သိမ်းမည် 📥</button>
+            <input type="text" id="docId" class="u-input" placeholder="ID ရိုက်ရန်">
+            <input type="text" id="username" class="u-input" placeholder="နာမည်ရိုက်ရန်">
+            <input type="date" id="expiry" class="u-input">
+            <button class="btn-main" onclick="saveAndDownload()"><i class="fas fa-save"></i> သိမ်းမည်</button>
         </div>
 
-        <div class="admin-panel">
-            <input type="text" id="searchInput" class="ui-input" placeholder="🔍 ID ဖြင့် ရှာဖွေပါ...">
+        <div class="search-panel" style="justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="ရှာရန်..." oninput="searchUsers()">
+            </div>
+            <div style="font-size: 12px; font-weight: bold; color: var(--primary); background: #ffebeb; padding: 2px 10px; border-radius: 50px;">
+                <span id="countNum">0</span> ယောက်
+            </div>
         </div>
 
-        <div class="list-section">
-            <table>
-                <thead>
-                    <tr><th>Status</th><th>User / ID</th><th>Control</th></tr>
-                </thead>
-                <tbody id="user-list"></tbody>
-            </table>
-        </div>
+        <div id="user-list-container"></div>
     </div>
 
 <script type="module">
@@ -144,92 +121,132 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const usersCol = collection(db, "users");
-
-    // --- Login Security Logic ---
-    const AUTH_USER = "admin";
-    const AUTH_PASS = "kso12345";
+    let masterData = [];
 
     window.checkLogin = () => {
-        const user = document.getElementById('adminUser').value;
-        const pass = document.getElementById('adminPass').value;
-        if(user === AUTH_USER && pass === AUTH_PASS) {
+        if(document.getElementById('adminUser').value === "admin" && document.getElementById('adminPass').value === "kso12345") {
             document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-admin').style.display = 'flex';
-            initApp();
-        } else {
-            document.getElementById('loginError').innerText = "နာမည် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
-        }
+            document.getElementById('main-admin').style.display = 'block';
+            loadData();
+        } else { document.getElementById('err').innerText = "မှားယွင်းနေပါသည်။"; }
     };
 
-    // --- Main Admin Functions ---
-    const idIn = document.getElementById('docId');
-    const nameIn = document.getElementById('username');
-    const expIn = document.getElementById('expiry');
+    function loadData() {
+        onSnapshot(usersCol, async (snap) => {
+            masterData = [];
+            const today = new Date();
+            today.setHours(0,0,0,0);
 
-    async function sync() {
-        const id = idIn.value.trim();
-        document.getElementById('p-id').innerText = id || ".......";
-        document.getElementById('p-name').innerText = nameIn.value || ".......";
-        document.getElementById('p-exp').innerText = expIn.value || ".......";
-        if (id.length > 2) {
-            await setDoc(doc(db, "users", id), {
-                username: nameIn.value,
-                expiryDate: expIn.value,
-                lastSeen: Date.now()
-            }, { merge: true });
-        }
-    }
-    idIn.oninput = sync; nameIn.oninput = sync; expIn.oninput = sync;
-
-    let allUsers = [];
-    function initApp() {
-        onSnapshot(usersCol, (snap) => {
-            allUsers = [];
-            snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
-            render(allUsers);
+            for (const d of snap.docs) {
+                const data = d.data();
+                if (data.expiryDate) {
+                    const expDate = new Date(data.expiryDate);
+                    expDate.setHours(0,0,0,0);
+                    const diffDays = Math.floor((today - expDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays >= 5) {
+                        await deleteDoc(doc(db, "users", d.id));
+                        continue;
+                    }
+                }
+                masterData.push({ id: d.id, ...data });
+            }
+            render(masterData);
         });
     }
 
-    function render(data) {
-        const list = document.getElementById("user-list");
-        list.innerHTML = "";
-        data.forEach(u => {
+    window.searchUsers = () => {
+        const val = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = masterData.filter(u => 
+            u.id.toLowerCase().includes(val) || 
+            (u.username && u.username.toLowerCase().includes(val))
+        );
+        render(filtered);
+    };
+
+    function render(list) {
+        const container = document.getElementById("user-list-container");
+        document.getElementById("countNum").innerText = list.length;
+        container.innerHTML = "";
+        
+        list.forEach(u => {
+            const days = calculateDays(u.expiryDate);
             const isBanned = u.status === "banned";
-            list.innerHTML += `<tr>
-                <td style="color:${isBanned?'#e74c3c':'#2ecc71'}; font-weight:bold;">${isBanned?'BANNED':'ACTIVE'}</td>
-                <td><strong>${u.username}</strong><br><small style="color:#666">${u.id}</small></td>
-                <td>
-                    <button class="btn-action ${isBanned?'btn-unban':'btn-ban'}" onclick="toggleStatus('${u.id}','${isBanned?'active':'banned'}')">${isBanned?'ဖွင့်':'ပိတ်'}</button>
-                    <button class="btn-action btn-del" onclick="deleteUser('${u.id}')">ဖျက်</button>
-                </td>
-            </tr>`;
+            
+            // Percentage for bar (assuming 30 days is 100%)
+            const percent = Math.min(100, (days / 30) * 100);
+            let color = "#ff4757"; // Red
+            if (days >= 20) color = "#2ed573"; // Green
+            else if (days >= 4) color = "#ffa502"; // Yellow
+
+            const div = document.createElement('div');
+            div.className = `user-card ${isBanned ? 'banned' : ''}`;
+            div.style.borderLeftColor = isBanned ? '#555' : color;
+            
+            div.innerHTML = `
+                <div class="card-main-content">
+                    <div class="c-info">
+                        <span class="c-id">ID: ${u.id}</span>
+                        <span class="c-name"><i class="fas fa-user-circle"></i> ${u.username || 'No Name'}</span>
+                        <span class="c-date"><i class="fas fa-clock"></i> ${u.expiryDate} (${days} ရက်ကျန်)</span>
+                    </div>
+                    <div class="c-actions">
+                        <button class="btn-s" style="background:#3b82f6" onclick="editU('${u.id}','${u.username}','${u.expiryDate}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-s" style="background:${isBanned ? '#2ed573' : '#ffa502'}" onclick="statusU('${u.id}', '${isBanned ? 'active' : 'banned'}')">
+                            <i class="fas ${isBanned ? 'fa-play' : 'fa-pause'}"></i>
+                        </button>
+                        <button class="btn-s" style="background:#ff4757" onclick="deleteU('${u.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="expiry-bar-container">
+                    <div class="expiry-bar-fill" style="width: ${percent}%; background: ${color};"></div>
+                </div>
+            `;
+            container.appendChild(div);
         });
     }
 
-    window.toggleStatus = async (id, s) => { await updateDoc(doc(db, "users", id), { status: s }); };
-    window.deleteUser = async (id) => { if(confirm("အပြီးဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id)); };
+    function calculateDays(exp) {
+        if(!exp) return 0;
+        const diff = new Date(exp) - new Date();
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    }
 
-    document.getElementById('searchInput').oninput = (e) => {
-        const val = e.target.value.toLowerCase().trim();
-        render(allUsers.filter(u => u.id.toLowerCase().includes(val)));
+    window.saveAndDownload = async () => {
+        const id = document.getElementById('docId').value;
+        const name = document.getElementById('username').value;
+        const exp = document.getElementById('expiry').value;
+        if(id && name && exp) {
+            await setDoc(doc(db, "users", id), { username: name, expiryDate: exp, status: 'active' }, { merge: true });
+            html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `KSO_Slip_${id}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
     };
-</script>
 
-<script>
-    function downloadSlip() {
-        const area = document.getElementById('capture-area');
-        html2canvas(area, {
-            scale: 3,
-            useCORS: true,
-            allowTaint: false,
-            backgroundColor: "#ffffff"
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `KSO_VIP_${document.getElementById('docId').value || 'Slip'}.png`;
-            link.href = canvas.toURL ? canvas.toDataURL("image/png") : canvas.toDataURL();
-            link.click();
-        });
+    window.editU = (id, name, exp) => {
+        document.getElementById('docId').value = id;
+        document.getElementById('username').value = name;
+        document.getElementById('expiry').value = exp;
+        updatePreview();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function updatePreview() {
+        document.getElementById('p-id').innerText = document.getElementById('docId').value || "...";
+        document.getElementById('p-name').innerText = document.getElementById('username').value || "...";
+        document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "...";
     }
+
+    window.statusU = async (id, s) => { await updateDoc(doc(db, "users", id), { status: s }); };
+    window.deleteU = async (id) => { if(confirm("ဖျက်မှာ သေချာပါသလား?")) await deleteDoc(doc(db, "users", id)); };
+
+    document.getElementById('docId').oninput = updatePreview;
+    document.getElementById('username').oninput = updatePreview;
+    document.getElementById('expiry').oninput = updatePreview;
 </script>
 </body>
 </html>
+

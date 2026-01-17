@@ -3,64 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSO VIP Admin - Google Auth</title>
+    <title>KSO VIP Admin - Official</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap');
-        body { font-family: 'Pyidaungsu', sans-serif; background: #000; color: #fff; padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* Login Section */
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .google-btn { background: #fff; color: #000; padding: 12px 25px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        body { font-family: 'Pyidaungsu', sans-serif; background: #ffffff; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
 
-        /* Admin Dashboard */
-        #main-admin { display: none; width: 100%; max-width: 500px; }
-        .form-section { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-top: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; }
-        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* ၁။ Login Section ဒီဇိုင်း */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000;
+        }
+        .login-box {
+            background: #f9f9f9; padding: 30px; border-radius: 15px;
+            border: 1px solid #ddd; text-align: center; width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .login-box h2 { color: #ff3131; margin-bottom: 20px; }
+        .login-input {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;
+        }
+
+        /* ၂။ Admin Dashboard (Hidden until login) */
+        #main-admin { display: none; width: 100%; max-width: 850px; flex-direction: column; align-items: center; }
         
-        /* Table List */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #222; }
-        th { color: #ff3131; }
-        .delete-btn { color: #ff4444; cursor: pointer; background: none; border: 1px solid #ff4444; padding: 5px 10px; border-radius: 5px; }
+        /* စလစ်ဒီဇိုင်း (Size: 380x320) */
+        #capture-area {
+            width: 380px; height: 320px; position: relative;
+            border-radius: 20px; overflow: hidden; border: 2px solid #ff3131;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px; background: #ffffff;
+        }
+
+        .slip-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://raw.githubusercontent.com/yiyi225775-tech/Apk/main/cute-red-panda-tree-cartoon-vector-icon-illustration-animal-nature-icon-concept-isolated-premium_138676-5975.jpg');
+            background-size: cover; background-position: center;
+            opacity: 0.3; z-index: 1;
+        }
+
+        .slip-content {
+            position: relative; z-index: 5; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
+        }
+
+        .slip-title {
+            font-size: 26px; font-weight: bold; margin-bottom: 15px;
+            color: #ff3131; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .info-box { width: 100%; }
+        .slip-row {
+            font-size: 18px; margin: 12px 0; font-weight: bold; color: #000;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; padding-bottom: 5px;
+        }
+
+        .thank-you { margin-top: 20px; font-size: 22px; font-weight: bold; color: #ff3131; }
+
+        /* UI Panels */
+        .admin-panel { background: #f9f9f9; width: 100%; max-width: 420px; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #ddd; box-sizing: border-box; }
+        .ui-input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #000; font-size: 16px; box-sizing: border-box; outline: none; }
+        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        
+        .list-section { width: 100%; background: #fff; padding: 20px; border-radius: 15px; border: 1px solid #eee; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #ff3131; padding: 10px; border-bottom: 2px solid #f0f0f0; }
+        td { padding: 12px; border-bottom: 1px solid #f9f9f9; color: #333; }
+        
+        .btn-action { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 12px; margin: 2px; color: white; }
+        .btn-ban { background: #f39c12; }
+        .btn-unban { background: #27ae60; }
+        .btn-del { background: #c0392b; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <h1 style="color: #ff3131;">KSO VIP Admin</h1>
-        <button class="google-btn" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Google ဖြင့် ဝင်မည်
-        </button>
-        <p id="error-msg" style="color: red; margin-top: 15px;"></p>
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <input type="text" id="adminUser" class="login-input" placeholder="Admin Name">
+            <input type="password" id="adminPass" class="login-input" placeholder="Password">
+            <button class="save-btn" onclick="checkLogin()">Login 🔓</button>
+            <p id="loginError" style="color: #e74c3c; font-size: 13px; margin-top: 15px; font-weight: bold;"></p>
+        </div>
     </div>
 
     <div id="main-admin">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="color: #ff3131;">Admin Panel</h2>
-            <button onclick="logout()" style="background: none; border: 1px solid #888; color: #888; border-radius: 5px; cursor: pointer;">ထွက်မည်</button>
+        <div id="capture-area">
+            <div class="slip-bg"></div>
+            <div class="slip-content">
+                <div class="slip-title">KSO VIP ဝန်ဆောင်မှု</div>
+                <div class="info-box">
+                    <div class="slip-row"><span>ID:</span> <span id="p-id">.......</span></div>
+                    <div class="slip-row"><span>NAME:</span> <span id="p-name">.......</span></div>
+                    <div class="slip-row"><span>EXPIRY:</span> <span id="p-exp">.......</span></div>
+                </div>
+                <div class="thank-you">ကျေးဇူးတင်ပါသည်</div>
+            </div>
         </div>
 
-        <div class="form-section">
-            <input type="text" id="doc-id" placeholder="Document ID">
-            <input type="text" id="username" placeholder="Username">
-            <input type="date" id="expiry">
-            <button id="save-btn" class="save-btn">Save to Firestore</button>
+        <div class="admin-panel">
+            <input type="text" id="docId" class="ui-input" placeholder="ID ရိုက်ထည့်ပါ">
+            <input type="text" id="username" class="ui-input" placeholder="အမည်ရိုက်ထည့်ပါ">
+            <input type="date" id="expiry" class="ui-input">
+            <button class="save-btn" onclick="downloadSlip()">စလစ်ပုံကို သိမ်းမည် 📥</button>
         </div>
 
-        <table>
-            <thead><tr><th>User / ID</th><th>Expiry</th><th>Action</th></tr></thead>
-            <tbody id="user-list"></tbody>
-        </table>
+        <div class="admin-panel">
+            <input type="text" id="searchInput" class="ui-input" placeholder="🔍 ID ဖြင့် ရှာဖွေပါ...">
+        </div>
+
+        <div class="list-section">
+            <table>
+                <thead>
+                    <tr><th>Status</th><th>User / ID</th><th>Control</th></tr>
+                </thead>
+                <tbody id="user-list"></tbody>
+            </table>
+        </div>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ပုံထဲကအတိုင်း ပြင်ဆင်ထားသော Config
     const firebaseConfig = {
         apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
         authDomain: "ksovip-f4ffd.firebaseapp.com",
@@ -71,64 +142,94 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-
-    // ခွင့်ပြုထားသော Admin Gmail
-    const ADMIN_EMAIL = "ksovip8876@gmail.com";
-
-    // --- Authentication ---
-    window.loginWithGoogle = () => {
-        signInWithPopup(auth, provider).catch(err => alert("Error: " + err.message));
-    };
-    window.logout = () => signOut(auth);
-
-    onAuthStateChanged(auth, (user) => {
-        if (user && user.email === ADMIN_EMAIL) {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-admin').style.display = 'block';
-            loadUsers();
-        } else if (user) {
-            document.getElementById('error-msg').innerText = "ဝင်ခွင့်မရှိသော အကောင့်ဖြစ်ပါသည်။";
-            signOut(auth);
-        } else {
-            document.getElementById('login-overlay').style.display = 'flex';
-            document.getElementById('main-admin').style.display = 'none';
-        }
-    });
-
-    // --- Firestore Database ---
     const usersCol = collection(db, "users");
 
-    function loadUsers() {
+    // --- Login Security Logic ---
+    const AUTH_USER = "admin";
+    const AUTH_PASS = "kso12345";
+
+    window.checkLogin = () => {
+        const user = document.getElementById('adminUser').value;
+        const pass = document.getElementById('adminPass').value;
+        if(user === AUTH_USER && pass === AUTH_PASS) {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-admin').style.display = 'flex';
+            initApp();
+        } else {
+            document.getElementById('loginError').innerText = "နာမည် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်။";
+        }
+    };
+
+    // --- Main Admin Functions ---
+    const idIn = document.getElementById('docId');
+    const nameIn = document.getElementById('username');
+    const expIn = document.getElementById('expiry');
+
+    async function sync() {
+        const id = idIn.value.trim();
+        document.getElementById('p-id').innerText = id || ".......";
+        document.getElementById('p-name').innerText = nameIn.value || ".......";
+        document.getElementById('p-exp').innerText = expIn.value || ".......";
+        if (id.length > 2) {
+            await setDoc(doc(db, "users", id), {
+                username: nameIn.value,
+                expiryDate: expIn.value,
+                lastSeen: Date.now()
+            }, { merge: true });
+        }
+    }
+    idIn.oninput = sync; nameIn.oninput = sync; expIn.oninput = sync;
+
+    let allUsers = [];
+    function initApp() {
         onSnapshot(usersCol, (snap) => {
-            const list = document.getElementById("user-list");
-            list.innerHTML = "";
-            snap.forEach((u) => {
-                const data = u.data();
-                list.innerHTML += `<tr>
-                    <td><strong>${data.username}</strong><br><small style="color:#666">${u.id}</small></td>
-                    <td>${data.expiryDate}</td>
-                    <td><button class="delete-btn" onclick="deleteUser('${u.id}')">ဖျက်</button></td>
-                </tr>`;
-            });
+            allUsers = [];
+            snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+            render(allUsers);
         });
     }
 
-    document.getElementById("save-btn").onclick = async () => {
-        const id = document.getElementById("doc-id").value;
-        const name = document.getElementById("username").value;
-        const exp = document.getElementById("expiry").value;
-        if(id && name && exp) {
-            await setDoc(doc(db, "users", id), { username: name, expiryDate: exp });
-            alert("သိမ်းဆည်းပြီးပါပြီ");
-        }
-    };
+    function render(data) {
+        const list = document.getElementById("user-list");
+        list.innerHTML = "";
+        data.forEach(u => {
+            const isBanned = u.status === "banned";
+            list.innerHTML += `<tr>
+                <td style="color:${isBanned?'#e74c3c':'#2ecc71'}; font-weight:bold;">${isBanned?'BANNED':'ACTIVE'}</td>
+                <td><strong>${u.username}</strong><br><small style="color:#666">${u.id}</small></td>
+                <td>
+                    <button class="btn-action ${isBanned?'btn-unban':'btn-ban'}" onclick="toggleStatus('${u.id}','${isBanned?'active':'banned'}')">${isBanned?'ဖွင့်':'ပိတ်'}</button>
+                    <button class="btn-action btn-del" onclick="deleteUser('${u.id}')">ဖျက်</button>
+                </td>
+            </tr>`;
+        });
+    }
 
-    window.deleteUser = async (id) => {
-        if(confirm("ဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id));
+    window.toggleStatus = async (id, s) => { await updateDoc(doc(db, "users", id), { status: s }); };
+    window.deleteUser = async (id) => { if(confirm("အပြီးဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id)); };
+
+    document.getElementById('searchInput').oninput = (e) => {
+        const val = e.target.value.toLowerCase().trim();
+        render(allUsers.filter(u => u.id.toLowerCase().includes(val)));
     };
+</script>
+
+<script>
+    function downloadSlip() {
+        const area = document.getElementById('capture-area');
+        html2canvas(area, {
+            scale: 3,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: "#ffffff"
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `KSO_VIP_${document.getElementById('docId').value || 'Slip'}.png`;
+            link.href = canvas.toURL ? canvas.toDataURL("image/png") : canvas.toDataURL();
+            link.click();
+        });
+    }
 </script>
 </body>
 </html>

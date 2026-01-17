@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Admin Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f8f9fa; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        .form-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .list-section { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-top: 0; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; }
+        
+        .input-field { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .save-btn { width: 100%; padding: 12px; background-color: #0d6efd; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .save-btn:hover { background-color: #0b5ed7; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f1f3f5; color: #495057; }
+        .delete-btn { color: #dc3545; cursor: pointer; background: none; border: 1px solid #dc3545; padding: 5px 10px; border-radius: 4px; }
+        .delete-btn:hover { background: #dc3545; color: white; }
+        .badge { background: #d1e7dd; color: #0f5132; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-section">
+        <h2>Add/Update User</h2>
+        <input type="text" id="doc-id" class="input-field" placeholder="Document ID (ဥပမာ- b67b3ac683d5b081)">
+        <input type="text" id="username" class="input-field" placeholder="Username (နာမည်)">
+        <input type="date" id="expiry" class="input-field">
+        <button id="save-btn" class="save-btn">Save to Firestore</button>
+    </div>
+
+    <div class="list-section">
+        <h2>Users List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Document ID</th>
+                    <th>Username</th>
+                    <th>Expiry Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="user-list">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
+        authDomain: "ksovip.firebaseapp.com",
+        projectId: "ksovip",
+        storageBucket: "ksovip.appspot.com",
+        messagingSenderId: "400346502182",
+        appId: "1:400346502182:android:a01ef07542426892fc82e7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const usersCol = collection(db, "users");
+
+    // --- Users အားလုံးကို Real-time ပြသခြင်း ---
+    onSnapshot(usersCol, (snapshot) => {
+        const tableBody = document.getElementById("user-list");
+        tableBody.innerHTML = "";
+        
+        snapshot.forEach((userDoc) => {
+            const data = userDoc.data();
+            const row = `
+                <tr>
+                    <td style="font-size: 0.85rem; color: #666;">${userDoc.id}</td>
+                    <td><strong>${data.username}</strong></td>
+                    <td>${data.expiryDate} <span class="badge">Active</span></td>
+                    <td><button class="delete-btn" onclick="deleteUser('${userDoc.id}')">Delete</button></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    });
+
+    // --- User အသစ်ထည့်ခြင်း သို့မဟုတ် ID ဖြင့် ပြင်ဆင်ခြင်း ---
+    document.getElementById("save-btn").addEventListener("click", async () => {
+        const docId = document.getElementById("doc-id").value;
+        const username = document.getElementById("username").value;
+        const expiry = document.getElementById("expiry").value;
+
+        if (docId && username && expiry) {
+            try {
+                await setDoc(doc(db, "users", docId), {
+                    username: username,
+                    expiryDate: expiry,
+                    isActive: true
+                });
+                alert("အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။");
+                document.getElementById("doc-id").value = "";
+                document.getElementById("username").value = "";
+                document.getElementById("expiry").value = "";
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        } else {
+            alert("အချက်အလက်များကို ပြည့်စုံအောင် ဖြည့်ပါ။");
+        }
+    });
+
+    // --- User ပြန်ဖျက်ခြင်း Function ---
+    window.deleteUser = async (id) => {
+        if (confirm("ဒီ User ကို ဖျက်မှာ သေချာပါသလား?")) {
+            await deleteDoc(doc(db, "users", id));
+        }
+    };
+</script>
+
+</body>
+</html>
+

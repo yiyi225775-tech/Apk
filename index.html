@@ -3,102 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSO VIP - Google Admin</title>
+    <title>KSO VIP Admin - Google Auth</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap');
+        body { font-family: 'Pyidaungsu', sans-serif; background: #000; color: #fff; padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
         
-        body { font-family: 'Pyidaungsu', sans-serif; background: #000000; color: #ffffff; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        /* Login Section */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .google-btn { background: #fff; color: #000; padding: 12px 25px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+
+        /* Admin Dashboard */
+        #main-admin { display: none; width: 100%; max-width: 500px; }
+        .form-section { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-top: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; }
+        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
-        /* Login Page */
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .google-btn { background: #ffffff; color: #000; padding: 12px 24px; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
-        
-        /* Main Admin Content */
-        #main-admin { display: none; width: 100%; max-width: 450px; flex-direction: column; align-items: center; }
-
-        /* စလစ်ဒီဇိုင်း (လူကြီးမင်းပေးထားသော Black Theme ပုံစံ) */
-        #capture-area {
-            width: 380px; height: 320px; position: relative;
-            border-radius: 25px; overflow: hidden; border: 1px solid #333;
-            background: #000000; margin-bottom: 30px;
-        }
-
-        .slip-content {
-            position: relative; z-index: 5; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 30px; box-sizing: border-box;
-        }
-
-        .slip-title { font-size: 28px; font-weight: bold; margin-bottom: 25px; color: #ff3131; text-shadow: 0 0 10px rgba(255,49,49,0.5); }
-        .info-box { width: 100%; }
-        .slip-row { font-size: 20px; margin: 15px 0; font-weight: bold; color: #ffffff; border-bottom: 1px solid #333; display: flex; justify-content: space-between; padding-bottom: 8px; }
-        .thank-you { margin-top: 25px; font-size: 22px; font-weight: bold; color: #ff3131; }
-
-        /* Admin UI */
-        .admin-panel { background: #111; width: 100%; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #222; box-sizing: border-box; }
-        input { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 16px; box-sizing: border-box; }
-        .save-btn { width: 100%; padding: 15px; background: #ff3131; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .logout-link { color: #888; text-decoration: none; font-size: 14px; margin-bottom: 20px; cursor: pointer; }
-
-        /* User List */
-        .list-section { width: 100%; background: #111; padding: 15px; border-radius: 15px; border: 1px solid #222; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #ff3131; padding: 10px; border-bottom: 2px solid #222; }
-        td { padding: 12px; border-bottom: 1px solid #1a1a1a; color: #ccc; }
-        .btn-action { padding: 6px 10px; border-radius: 5px; border: none; cursor: pointer; color: white; font-size: 11px; margin: 2px; }
+        /* Table List */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #111; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #222; }
+        th { color: #ff3131; }
+        .delete-btn { color: #ff4444; cursor: pointer; background: none; border: 1px solid #ff4444; padding: 5px 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <h1 style="color: #ff3131; margin-bottom: 10px;">KSO VIP Admin</h1>
-        <p style="color: #888; margin-bottom: 30px;">စီမံခန့်ခွဲရန် Gmail ဖြင့် ဝင်ရောက်ပါ</p>
+        <h1 style="color: #ff3131;">KSO VIP Admin</h1>
         <button class="google-btn" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Google ဖြင့် ဝင်မည်
         </button>
-        <p id="auth-status" style="margin-top: 20px; color: #ff3131; font-weight: bold;"></p>
+        <p id="error-msg" style="color: red; margin-top: 15px;"></p>
     </div>
 
     <div id="main-admin">
-        <div class="logout-link" onclick="logout()">Logout ထွက်မည်</div>
-
-        <div id="capture-area">
-            <div class="slip-content">
-                <div class="slip-title">KSO VIP ဝန်ဆောင်မှု</div>
-                <div class="info-box">
-                    <div class="slip-row"><span>ID:</span> <span id="p-id">.......</span></div>
-                    <div class="slip-row"><span>NAME:</span> <span id="p-name">.......</span></div>
-                    <div class="slip-row"><span>EXPIRY:</span> <span id="p-exp">.......</span></div>
-                </div>
-                <div class="thank-you">ကျေးဇူးတင်ပါသည်</div>
-            </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: #ff3131;">Admin Panel</h2>
+            <button onclick="logout()" style="background: none; border: 1px solid #888; color: #888; border-radius: 5px; cursor: pointer;">ထွက်မည်</button>
         </div>
 
-        <div class="admin-panel">
-            <input type="text" id="docId" placeholder="ID (ဥပမာ- Hgfd)">
-            <input type="text" id="username" placeholder="NAME (ဥပမာ- Ffgg)">
+        <div class="form-section">
+            <input type="text" id="doc-id" placeholder="Document ID">
+            <input type="text" id="username" placeholder="Username">
             <input type="date" id="expiry">
-            <button class="save-btn" onclick="downloadSlip()">စလစ်ပုံကို သိမ်းမည် 📥</button>
+            <button id="save-btn" class="save-btn">Save to Firestore</button>
         </div>
 
-        <div class="admin-panel">
-            <input type="text" id="searchInput" placeholder="🔍 ID ဖြင့် ရှာဖွေရန်...">
-        </div>
-
-        <div class="list-section">
-            <table>
-                <thead><tr><th>Status</th><th>User / ID</th><th>Control</th></tr></thead>
-                <tbody id="user-list"></tbody>
-            </table>
-        </div>
+        <table>
+            <thead><tr><th>User / ID</th><th>Expiry</th><th>Action</th></tr></thead>
+            <tbody id="user-list"></tbody>
+        </table>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // ပုံထဲကအတိုင်း ပြင်ဆင်ထားသော Config
     const firebaseConfig = {
         apiKey: "AIzaSyDGCsxM1ccZ_ZswwNPZDI-ykOm5yJU1CIw",
         authDomain: "ksovip-f4ffd.firebaseapp.com",
@@ -113,83 +75,60 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    // --- ခွင့်ပြုထားသော Gmail ---
-    const ADMIN_EMAILS = ["ksovip8876@gmail.com"]; 
+    // ခွင့်ပြုထားသော Admin Gmail
+    const ADMIN_EMAIL = "ksovip8876@gmail.com";
 
+    // --- Authentication ---
     window.loginWithGoogle = () => {
         signInWithPopup(auth, provider).catch(err => alert("Error: " + err.message));
     };
-
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
-        if (user && ADMIN_EMAILS.includes(user.email)) {
+        if (user && user.email === ADMIN_EMAIL) {
             document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('main-admin').style.display = 'flex';
-            loadData();
+            document.getElementById('main-admin').style.display = 'block';
+            loadUsers();
         } else if (user) {
-            document.getElementById('auth-status').innerText = "ဝင်ခွင့်မရှိသော Gmail ဖြစ်သည်။";
-            setTimeout(() => signOut(auth), 2000);
+            document.getElementById('error-msg').innerText = "ဝင်ခွင့်မရှိသော အကောင့်ဖြစ်ပါသည်။";
+            signOut(auth);
         } else {
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('main-admin').style.display = 'none';
         }
     });
 
-    // --- Firebase Sync ---
-    const idIn = document.getElementById('docId');
-    const nameIn = document.getElementById('username');
-    const expIn = document.getElementById('expiry');
+    // --- Firestore Database ---
+    const usersCol = collection(db, "users");
 
-    async function sync() {
-        const id = idIn.value.trim();
-        document.getElementById('p-id').innerText = id || ".......";
-        document.getElementById('p-name').innerText = nameIn.value || ".......";
-        document.getElementById('p-exp').innerText = expIn.value || ".......";
-        if (id.length > 2) {
-            await setDoc(doc(db, "users", id), {
-                username: nameIn.value,
-                expiryDate: expIn.value,
-                lastSeen: Date.now()
-            }, { merge: true });
-        }
-    }
-    idIn.oninput = sync; nameIn.oninput = sync; expIn.oninput = sync;
-
-    function loadData() {
-        onSnapshot(collection(db, "users"), (snap) => {
+    function loadUsers() {
+        onSnapshot(usersCol, (snap) => {
             const list = document.getElementById("user-list");
             list.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                const isBanned = u.status === "banned";
+            snap.forEach((u) => {
+                const data = u.data();
                 list.innerHTML += `<tr>
-                    <td style="color:${isBanned?'#ff4444':'#00c851'}; font-weight:bold;">${isBanned?'BANNED':'ACTIVE'}</td>
-                    <td><strong>${u.username}</strong><br><small>${d.id}</small></td>
-                    <td>
-                        <button class="btn-action" style="background:${isBanned?'#00c851':'#fb8c00'}" onclick="toggleStatus('${d.id}','${isBanned?'active':'banned'}')">${isBanned?'ဖွင့်':'ပိတ်'}</button>
-                        <button class="btn-action" style="background:#ff4444" onclick="deleteUser('${d.id}')">ဖျက်</button>
-                    </td>
+                    <td><strong>${data.username}</strong><br><small style="color:#666">${u.id}</small></td>
+                    <td>${data.expiryDate}</td>
+                    <td><button class="delete-btn" onclick="deleteUser('${u.id}')">ဖျက်</button></td>
                 </tr>`;
             });
         });
     }
 
-    window.toggleStatus = async (id, s) => { await updateDoc(doc(db, "users", id), { status: s }); };
-    window.deleteUser = async (id) => { if(confirm("အပြီးဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id)); };
-</script>
+    document.getElementById("save-btn").onclick = async () => {
+        const id = document.getElementById("doc-id").value;
+        const name = document.getElementById("username").value;
+        const exp = document.getElementById("expiry").value;
+        if(id && name && exp) {
+            await setDoc(doc(db, "users", id), { username: name, expiryDate: exp });
+            alert("သိမ်းဆည်းပြီးပါပြီ");
+        }
+    };
 
-<script>
-    function downloadSlip() {
-        html2canvas(document.getElementById('capture-area'), {
-            scale: 3, backgroundColor: "#000000"
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `KSO_VIP_${document.getElementById('docId').value || 'Slip'}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        });
-    }
+    window.deleteUser = async (id) => {
+        if(confirm("ဖျက်မှာလား?")) await deleteDoc(doc(db, "users", id));
+    };
 </script>
 </body>
 </html>

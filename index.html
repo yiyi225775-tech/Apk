@@ -37,9 +37,9 @@
             display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             position: relative; border-left: 6px solid #ccc;
         }
+        /* Banned mode: Grey out the card */
         .user-card.banned { opacity: 0.5; filter: grayscale(1); border-left-color: #555 !important; }
         
-        /* Card Label (User Card 1, 2, 3) */
         .card-label { font-size: 10px; font-weight: bold; color: #fff; background: #333; padding: 2px 8px; border-radius: 5px; margin-bottom: 8px; align-self: flex-start; }
 
         .card-main-content { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 8px; }
@@ -130,17 +130,8 @@
     function loadData() {
         onSnapshot(usersCol, async (snap) => {
             masterData = [];
-            const today = new Date();
-            today.setHours(0,0,0,0);
             for (const d of snap.docs) {
-                const data = d.data();
-                if (data.expiryDate) {
-                    const expDate = new Date(data.expiryDate);
-                    expDate.setHours(0,0,0,0);
-                    const diffDays = Math.floor((today - expDate) / (1000 * 60 * 60 * 24));
-                    if (diffDays >= 5) { await deleteDoc(doc(db, "users", d.id)); continue; }
-                }
-                masterData.push({ id: d.id, ...data });
+                masterData.push({ id: d.id, ...d.data() });
             }
             render(masterData);
         });
@@ -159,7 +150,8 @@
         
         list.forEach((u, index) => {
             const days = calculateDays(u.expiryDate);
-            const isBanned = u.status === "banned";
+            // Check status for UI display
+            const isBanned = (u.status === "banned" || u.isActive === false);
             const percent = Math.min(100, (days / 30) * 100);
             let color = "#ff4757"; 
             if (days >= 20) color = "#2ed573"; 
@@ -204,7 +196,13 @@
         const name = document.getElementById('username').value;
         const exp = document.getElementById('expiry').value;
         if(id && name && exp) {
-            await setDoc(doc(db, "users", id), { username: name, expiryDate: exp, status: 'active' }, { merge: true });
+            await setDoc(doc(db, "users", id), { 
+                username: name, 
+                expiryDate: exp, 
+                status: 'active',
+                isActive: true 
+            }, { merge: true });
+            
             html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `KSO_Slip_${id}.png`;
@@ -228,7 +226,15 @@
         document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "...";
     }
 
-    window.statusU = async (id, s) => { await updateDoc(doc(db, "users", id), { status: s }); };
+    // ဖွင့်/ပိတ် ပြုလုပ်သည့် Function
+    window.statusU = async (id, s) => { 
+        const isBanned = (s === 'banned');
+        await updateDoc(doc(db, "users", id), { 
+            status: s,
+            isActive: !isBanned 
+        }); 
+    };
+
     window.deleteU = async (id) => { if(confirm("ဖျက်မှာ သေချာပါသလား?")) await deleteDoc(doc(db, "users", id)); };
 
     document.getElementById('docId').oninput = updatePreview;

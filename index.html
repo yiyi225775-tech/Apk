@@ -27,6 +27,12 @@
         .thanks-msg { margin-top: 15px; font-weight: bold; color: var(--primary); font-size: 16px; }
 
         .admin-panel, .search-panel { background: #fff; padding: 15px; border-radius: 18px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; box-sizing: border-box; }
+        
+        /* Date Shortcut Buttons */
+        .date-shortcuts { display: flex; gap: 5px; margin-bottom: 10px; }
+        .btn-date { flex: 1; padding: 8px; font-size: 11px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; transition: 0.3s; font-weight: bold; color: #333; }
+        .btn-date:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
         .search-panel { display: flex; align-items: center; gap: 10px; border: 1.5px solid #eee; }
         .search-input { border: none; outline: none; width: 100%; font-family: 'Pyidaungsu'; font-size: 14px; }
         .btn-main { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; }
@@ -35,18 +41,16 @@
         .user-card { 
             background: #fff; border-radius: 15px; padding: 12px; margin-bottom: 15px; 
             display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            position: relative; border-left: 6px solid #ccc;
+            position: relative; border-left: 6px solid #ccc; cursor: pointer;
         }
+        .user-card:active { transform: scale(0.98); }
         .user-card.banned { opacity: 0.5; filter: grayscale(1); border-left-color: #555 !important; }
-        
         .card-label { font-size: 10px; font-weight: bold; color: #fff; background: #333; padding: 2px 8px; border-radius: 5px; margin-bottom: 8px; align-self: flex-start; }
-
         .card-main-content { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 8px; }
         .c-info { flex: 1; }
         .c-id { font-size: 11px; color: var(--primary); font-weight: bold; display: block; margin-bottom: 4px; border-bottom: 1px dashed #f0f0f0; }
         .c-name { font-size: 14px; font-weight: bold; color: #1a1a1a; display: block; }
         .c-date { font-size: 11px; color: #666; margin-top: 2px; display: block; }
-        
         .c-actions { display: flex; gap: 6px; }
         .btn-s { width: 34px; height: 34px; border-radius: 9px; border: none; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
 
@@ -82,6 +86,14 @@
         <div class="admin-panel">
             <input type="text" id="docId" class="u-input" placeholder="ID ရိုက်ရန်">
             <input type="text" id="username" class="u-input" placeholder="နာမည်ရိုက်ရန်">
+            
+            <div class="date-shortcuts">
+                <button class="btn-date" onclick="setAutoDate(2)">2 Days</button>
+                <button class="btn-date" onclick="setAutoDate(30)">1 Month</button>
+                <button class="btn-date" onclick="setAutoDate(60)">2 Months</button>
+                <button class="btn-date" onclick="setAutoDate(90)">3 Months</button>
+            </div>
+            
             <input type="date" id="expiry" class="u-input">
             <button class="btn-main" onclick="saveAndDownload()"><i class="fas fa-save"></i> သိမ်းမည်</button>
         </div>
@@ -90,9 +102,9 @@
             <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchInput" class="search-input" placeholder="ရှာရန်..." oninput="searchUsers()">
-                <i class="fas fa-paste" onclick="pasteSearch()" style="cursor: pointer; color: var(--primary); padding: 5px;" title="Paste"></i>
+                <i class="fas fa-paste" onclick="pasteSearch()" style="cursor: pointer; color: var(--primary); padding: 5px;"></i>
             </div>
-            <div style="font-size: 12px; font-weight: bold; color: var(--primary); background: #ffebeb; padding: 2px 10px; border-radius: 50px; margin-left: 5px;">
+            <div style="font-size: 12px; font-weight: bold; color: var(--primary); background: #ffebeb; padding: 2px 10px; border-radius: 50px;">
                 <span id="countNum">0</span> ယောက်
             </div>
         </div>
@@ -136,16 +148,19 @@
         });
     }
 
-    // Paste Function
+    window.setAutoDate = (days) => {
+        const today = new Date();
+        today.setDate(today.getDate() + days);
+        document.getElementById('expiry').value = today.toISOString().split('T')[0];
+        updatePreview();
+    };
+
     window.pasteSearch = async () => {
         try {
             const text = await navigator.clipboard.readText();
-            const input = document.getElementById('searchInput');
-            input.value = text;
+            document.getElementById('searchInput').value = text;
             searchUsers();
-        } catch (err) {
-            console.error('Clipboard access denied');
-        }
+        } catch (err) { console.error('Paste failed'); }
     };
 
     window.searchUsers = () => {
@@ -154,23 +169,27 @@
         render(filtered);
     };
 
+    window.copyID = (id) => {
+        navigator.clipboard.writeText(id).then(() => {
+            alert("ID: " + id + " ကို Copy ကူးပြီးပါပြီ");
+        });
+    };
+
     function render(list) {
         const container = document.getElementById("user-list-container");
         document.getElementById("countNum").innerText = list.length;
         container.innerHTML = "";
-        
         list.forEach((u, index) => {
             const days = calculateDays(u.expiryDate);
             const isBanned = (u.status === "banned" || u.isActive === false);
             const percent = Math.min(100, (days / 30) * 100);
-            let color = "#ff4757"; 
-            if (days >= 20) color = "#2ed573"; 
-            else if (days >= 4) color = "#ffa502";
+            let color = days >= 20 ? "#2ed573" : (days >= 4 ? "#ffa502" : "#ff4757");
 
             const div = document.createElement('div');
             div.className = `user-card ${isBanned ? 'banned' : ''}`;
             div.style.borderLeftColor = isBanned ? '#555' : color;
-            
+            div.onclick = (e) => { if(!e.target.closest('button')) copyID(u.id); };
+
             div.innerHTML = `
                 <div class="card-label">USER CARD ${index + 1}</div>
                 <div class="card-main-content">
@@ -181,15 +200,13 @@
                     </div>
                     <div class="c-actions">
                         <button class="btn-s" style="background:#3b82f6" onclick="editU('${u.id}','${u.username}','${u.expiryDate}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-s" style="background:${isBanned ? '#2ed573' : '#ffa502'}" onclick="statusU('${u.id}', '${isBanned ? 'active' : 'banned'}')">
+                        <button class="btn-s" style="background:${isBanned ? '#2ed573' : '#ffa502'}" onclick="statusU('${u.id}', '${isBanned ? 'active' : 'banned'}'); event.stopPropagation();">
                             <i class="fas ${isBanned ? 'fa-play' : 'fa-pause'}"></i>
                         </button>
-                        <button class="btn-s" style="background:#ff4757" onclick="deleteU('${u.id}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn-s" style="background:#ff4757" onclick="deleteU('${u.id}'); event.stopPropagation();"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
-                <div class="expiry-bar-container">
-                    <div class="expiry-bar-fill" style="width: ${percent}%; background: ${color};"></div>
-                </div>
+                <div class="expiry-bar-container"><div class="expiry-bar-fill" style="width: ${percent}%; background: ${color};"></div></div>
             `;
             container.appendChild(div);
         });
@@ -206,17 +223,11 @@
         const name = document.getElementById('username').value;
         const exp = document.getElementById('expiry').value;
         if(id && name && exp) {
-            await setDoc(doc(db, "users", id), { 
-                username: name, 
-                expiryDate: exp, 
-                status: 'active',
-                isActive: true 
-            }, { merge: true });
-            
+            await setDoc(doc(db, "users", id), { username: name, expiryDate: exp, status: 'active', isActive: true }, { merge: true });
             html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `KSO_Slip_${id}.png`;
-                link.href = canvas.toURL(); // Corrected for some browsers
+                link.href = canvas.toDataURL();
                 link.click();
             });
         }
@@ -237,11 +248,7 @@
     }
 
     window.statusU = async (id, s) => { 
-        const isBanned = (s === 'banned');
-        await updateDoc(doc(db, "users", id), { 
-            status: s,
-            isActive: !isBanned 
-        }); 
+        await updateDoc(doc(db, "users", id), { status: s, isActive: (s === 'active') }); 
     };
 
     window.deleteU = async (id) => { if(confirm("ဖျက်မှာ သေချာပါသလား?")) await deleteDoc(doc(db, "users", id)); };

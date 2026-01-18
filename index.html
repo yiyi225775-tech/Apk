@@ -37,7 +37,6 @@
             display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             position: relative; border-left: 6px solid #ccc;
         }
-        /* Banned mode: Grey out the card */
         .user-card.banned { opacity: 0.5; filter: grayscale(1); border-left-color: #555 !important; }
         
         .card-label { font-size: 10px; font-weight: bold; color: #fff; background: #333; padding: 2px 8px; border-radius: 5px; margin-bottom: 8px; align-self: flex-start; }
@@ -51,7 +50,6 @@
         .c-actions { display: flex; gap: 6px; }
         .btn-s { width: 34px; height: 34px; border-radius: 9px; border: none; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; }
 
-        /* Progress Bar */
         .expiry-bar-container { width: 100%; height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden; margin-top: 8px; }
         .expiry-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
     </style>
@@ -92,8 +90,9 @@
             <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchInput" class="search-input" placeholder="ရှာရန်..." oninput="searchUsers()">
+                <i class="fas fa-paste" onclick="pasteSearch()" style="cursor: pointer; color: var(--primary); padding: 5px;" title="Paste"></i>
             </div>
-            <div style="font-size: 12px; font-weight: bold; color: var(--primary); background: #ffebeb; padding: 2px 10px; border-radius: 50px;">
+            <div style="font-size: 12px; font-weight: bold; color: var(--primary); background: #ffebeb; padding: 2px 10px; border-radius: 50px; margin-left: 5px;">
                 <span id="countNum">0</span> ယောက်
             </div>
         </div>
@@ -137,6 +136,18 @@
         });
     }
 
+    // Paste Function
+    window.pasteSearch = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            const input = document.getElementById('searchInput');
+            input.value = text;
+            searchUsers();
+        } catch (err) {
+            console.error('Clipboard access denied');
+        }
+    };
+
     window.searchUsers = () => {
         const val = document.getElementById('searchInput').value.toLowerCase();
         const filtered = masterData.filter(u => u.id.toLowerCase().includes(val) || (u.username && u.username.toLowerCase().includes(val)));
@@ -150,7 +161,6 @@
         
         list.forEach((u, index) => {
             const days = calculateDays(u.expiryDate);
-            // Check status for UI display
             const isBanned = (u.status === "banned" || u.isActive === false);
             const percent = Math.min(100, (days / 30) * 100);
             let color = "#ff4757"; 
@@ -206,7 +216,7 @@
             html2canvas(document.getElementById('capture-area'), { scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `KSO_Slip_${id}.png`;
-                link.href = canvas.toDataURL();
+                link.href = canvas.toURL(); // Corrected for some browsers
                 link.click();
             });
         }
@@ -226,7 +236,6 @@
         document.getElementById('p-exp').innerText = document.getElementById('expiry').value || "...";
     }
 
-    // ဖွင့်/ပိတ် ပြုလုပ်သည့် Function
     window.statusU = async (id, s) => { 
         const isBanned = (s === 'banned');
         await updateDoc(doc(db, "users", id), { 
